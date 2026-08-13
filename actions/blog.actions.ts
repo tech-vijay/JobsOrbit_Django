@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "@/lib/db/mongoose";
 import { BlogPost } from "@/models/BlogPost";
+import { User } from "@/models/User";
 import { blogPostSchema, BlogPostInput } from "@/validations/blog.schema";
 import { generateSlug, generateUniqueSlug } from "@/lib/utils/slug";
 import { IBlogPost } from "@/types/blog.types";
