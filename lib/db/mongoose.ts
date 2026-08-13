@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
 import dns from "dns";
 
+// Ensure all Mongoose schemas are registered for populate queries
+import "@/models/User";
+import "@/models/Company";
+import "@/models/Category";
+import "@/models/Opportunity";
+import "@/models/BlogPost";
+
 // Ensure DNS fallback to public Google/Cloudflare DNS for Node.js SRV record resolution on Windows
 function configureDNS() {
   try {
