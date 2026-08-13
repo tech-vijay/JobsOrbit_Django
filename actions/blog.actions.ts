@@ -3,10 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "@/lib/db/mongoose";
 import { BlogPost } from "@/models/BlogPost";
-import { User } from "@/models/User";
-
-// Ensure User & BlogPost models are referenced so bundler doesn't tree-shake them
-const _models = [BlogPost, User];
 import { blogPostSchema, BlogPostInput } from "@/validations/blog.schema";
 import { generateSlug, generateUniqueSlug } from "@/lib/utils/slug";
 import { IBlogPost } from "@/types/blog.types";
@@ -39,7 +35,6 @@ export async function getBlogPosts(filters: GetBlogPostsFilters = {}) {
 
     const [posts, total] = await Promise.all([
       BlogPost.find(query)
-        .populate("author", "name email")
         .sort({ publishedAt: -1, createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -62,7 +57,7 @@ export async function getBlogPosts(filters: GetBlogPostsFilters = {}) {
 export async function getBlogPostById(id: string): Promise<IBlogPost | null> {
   try {
     await connectToDatabase();
-    const post = await BlogPost.findById(id).populate("author").lean();
+    const post = await BlogPost.findById(id).lean();
     if (!post) return null;
     return JSON.parse(JSON.stringify(post));
   } catch (error) {
@@ -74,7 +69,7 @@ export async function getBlogPostById(id: string): Promise<IBlogPost | null> {
 export async function getBlogPostBySlug(slug: string): Promise<IBlogPost | null> {
   try {
     await connectToDatabase();
-    const post = await BlogPost.findOne({ slug }).populate("author").lean();
+    const post = await BlogPost.findOne({ slug }).lean();
     if (!post) return null;
     return JSON.parse(JSON.stringify(post));
   } catch (error) {
