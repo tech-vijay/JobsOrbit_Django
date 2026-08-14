@@ -1,9 +1,9 @@
 <<<<<<< HEAD
 # JobsOrbit
 =======
-# 🎓 CareerHub — Production Student Jobs & Internship Portal
+# 🎓 JobsOrbit— Production Student Jobs & Internship Portal
 
-**CareerHub** is a full-stack Next.js 16 Web Application designed for publishing daily off-campus jobs, internships, work-from-home opportunities, and career placement guides for students and freshers.
+**JobsOrbit** is a full-stack Next.js 16 Web Application designed for publishing daily off-campus jobs, internships, work-from-home opportunities, and career placement guides for students and freshers.
 
 ---
 
@@ -80,7 +80,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 On first run, the application automatically seeds the default admin user:
 
-- **Email**: `admin@careerhub.com`
+- **Email**: `admin@jobsorbit.com`
 - **Password**: `admin123456`
 - **Admin Login Route**: `/login`
 
