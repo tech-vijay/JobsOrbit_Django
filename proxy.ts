@@ -6,8 +6,9 @@ export function proxy(request: NextRequest) {
 
   // Protect all /admin routes
   if (pathname.startsWith("/admin")) {
-    // Check session token in cookies (Better Auth)
+    // Check session token in cookies (Django JWT token or legacy)
     const sessionToken =
+      request.cookies.get("jobsorbit_jwt_token")?.value ||
       request.cookies.get("better-auth.session_token")?.value ||
       request.cookies.get("__Secure-better-auth.session_token")?.value ||
       request.cookies.get("authjs.session-token")?.value ||

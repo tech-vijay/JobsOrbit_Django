@@ -1,10 +1,6 @@
 "use server";
 
-import { connectToDatabase } from "@/lib/db/mongoose";
-import { Opportunity } from "@/models/Opportunity";
-import { Company } from "@/models/Company";
-import { Category } from "@/models/Category";
-import { BlogPost } from "@/models/BlogPost";
+import { fetchDjango } from "@/lib/api/django-client";
 import { IOpportunity } from "@/types/opportunity.types";
 
 export interface AdminStats {
@@ -19,39 +15,15 @@ export interface AdminStats {
 
 export async function getAdminStats(): Promise<AdminStats> {
   try {
-    await connectToDatabase();
-
-    const [
-      totalOpportunities,
-      publishedOpportunities,
-      draftOpportunities,
-      totalCompanies,
-      totalCategories,
-      totalBlogPosts,
-      recentOpportunities,
-    ] = await Promise.all([
-      Opportunity.countDocuments(),
-      Opportunity.countDocuments({ status: "published" }),
-      Opportunity.countDocuments({ status: { $in: ["draft", "expired"] } }),
-      Company.countDocuments(),
-      Category.countDocuments(),
-      BlogPost.countDocuments(),
-      Opportunity.find()
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .populate("company", "name logo")
-        .populate("category", "name")
-        .lean(),
-    ]);
-
+    const data = await fetchDjango<AdminStats>("/stats/");
     return {
-      totalOpportunities,
-      publishedOpportunities,
-      draftOpportunities,
-      totalCompanies,
-      totalCategories,
-      totalBlogPosts,
-      recentOpportunities: JSON.parse(JSON.stringify(recentOpportunities)),
+      totalOpportunities: data.totalOpportunities || 0,
+      publishedOpportunities: data.publishedOpportunities || 0,
+      draftOpportunities: data.draftOpportunities || 0,
+      totalCompanies: data.totalCompanies || 0,
+      totalCategories: data.totalCategories || 0,
+      totalBlogPosts: data.totalBlogPosts || 0,
+      recentOpportunities: data.recentOpportunities || [],
     };
   } catch (error) {
     console.error("[getAdminStats Error]:", error);

@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
+import { getAdminSession } from "@/actions/auth.actions";
 import AdminShell from "@/components/admin/layout/AdminShell";
 
 export default async function AdminLayout({
@@ -7,12 +6,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const user = await getAdminSession();
 
   return (
-    <AdminShell user={session?.user}>
+    <AdminShell user={user || undefined}>
       {children}
     </AdminShell>
   );

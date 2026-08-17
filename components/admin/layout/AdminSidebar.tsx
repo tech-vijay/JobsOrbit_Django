@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth/auth-client";
+import { logoutAdminAction } from "@/actions/auth.actions";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
@@ -48,7 +48,7 @@ export default function AdminSidebar({
 
   const handleSignOut = async () => {
     try {
-      await authClient.signOut();
+      await logoutAdminAction();
       toast.success("Signed out successfully");
       router.push("/login");
       router.refresh();

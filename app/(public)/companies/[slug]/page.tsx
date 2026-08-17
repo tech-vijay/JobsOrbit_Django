@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Building2, ExternalLink, ArrowLeft } from "lucide-react";
-import { connectToDatabase } from "@/lib/db/mongoose";
-import { Company } from "@/models/Company";
+import { getCompanyById } from "@/actions/company.actions";
 import { getOpportunities } from "@/actions/opportunity.actions";
 import OpportunityGrid from "@/components/public/opportunities/OpportunityGrid";
 import { buildMetadata } from "@/lib/utils/seo";
-import { ICompany } from "@/types/company.types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -14,8 +12,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const resolvedParams = await params;
-  await connectToDatabase();
-  const company = await Company.findOne({ slug: resolvedParams.slug }).lean();
+  const company = await getCompanyById(resolvedParams.slug);
 
   if (!company) {
     return buildMetadata({
@@ -33,17 +30,14 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
-  await connectToDatabase();
-  const rawCompany = await Company.findOne({ slug: resolvedParams.slug }).lean();
+  const company = await getCompanyById(resolvedParams.slug);
 
-  if (!rawCompany) {
+  if (!company) {
     notFound();
   }
 
-  const company: ICompany = JSON.parse(JSON.stringify(rawCompany));
-
   const { opportunities } = await getOpportunities({
-    company: company._id,
+    company: company.slug || company._id,
     status: "published",
     limit: 20,
   });

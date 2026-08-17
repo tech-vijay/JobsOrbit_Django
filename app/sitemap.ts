@@ -1,10 +1,9 @@
 import { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { connectToDatabase } from "@/lib/db/mongoose";
-import { Opportunity } from "@/models/Opportunity";
-import { Category } from "@/models/Category";
-import { Company } from "@/models/Company";
-import { BlogPost } from "@/models/BlogPost";
+import { getOpportunities } from "@/actions/opportunity.actions";
+import { getCategories } from "@/actions/category.actions";
+import { getCompanies } from "@/actions/company.actions";
+import { getBlogPosts } from "@/actions/blog.actions";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
@@ -50,14 +49,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    await connectToDatabase();
-
-    const [opportunities, categories, companies, blogPosts] = await Promise.all([
-      Opportunity.find({ status: "published" }).select("slug type updatedAt").lean(),
-      Category.find({}).select("slug updatedAt").lean(),
-      Company.find({}).select("slug updatedAt").lean(),
-      BlogPost.find({ status: "published" }).select("slug updatedAt").lean(),
+    const [opportunitiesData, categories, companies, blogData] = await Promise.all([
+      getOpportunities({ status: "published", limit: 100 }),
+      getCategories(),
+      getCompanies(),
+      getBlogPosts({ status: "published", limit: 100 }),
     ]);
+
+    const opportunities = opportunitiesData.opportunities || [];
+    const blogPosts = blogData.posts || [];
 
     const opportunityRoutes: MetadataRoute.Sitemap = opportunities.map((op) => ({
       url: `${baseUrl}/${op.type === "internship" ? "internships" : "jobs"}/${op.slug}`,

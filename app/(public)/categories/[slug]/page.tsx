@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Tag } from "lucide-react";
-import { connectToDatabase } from "@/lib/db/mongoose";
-import { Category } from "@/models/Category";
+import { getCategoryById } from "@/actions/category.actions";
 import { getOpportunities } from "@/actions/opportunity.actions";
 import OpportunityGrid from "@/components/public/opportunities/OpportunityGrid";
 import { buildMetadata } from "@/lib/utils/seo";
-import { ICategory } from "@/types/category.types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -14,8 +12,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const resolvedParams = await params;
-  await connectToDatabase();
-  const category = await Category.findOne({ slug: resolvedParams.slug }).lean();
+  const category = await getCategoryById(resolvedParams.slug);
 
   if (!category) {
     return buildMetadata({
@@ -36,17 +33,14 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function CategoryDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
-  await connectToDatabase();
-  const rawCategory = await Category.findOne({ slug: resolvedParams.slug }).lean();
+  const category = await getCategoryById(resolvedParams.slug);
 
-  if (!rawCategory) {
+  if (!category) {
     notFound();
   }
 
-  const category: ICategory = JSON.parse(JSON.stringify(rawCategory));
-
   const { opportunities, total } = await getOpportunities({
-    category: category._id,
+    category: category.slug || category._id,
     status: "published",
     limit: 24,
   });

@@ -1,10 +1,6 @@
 "use server";
 
-import { connectToDatabase } from "@/lib/db/mongoose";
-import { Opportunity } from "@/models/Opportunity";
-import { Company } from "@/models/Company";
-import { Category } from "@/models/Category";
-import { BlogPost } from "@/models/BlogPost";
+import { fetchDjango } from "@/lib/api/django-client";
 import { IOpportunity } from "@/types/opportunity.types";
 import { ICompany } from "@/types/company.types";
 import { ICategory } from "@/types/category.types";
@@ -28,40 +24,15 @@ export async function searchAll(query: string): Promise<GlobalSearchResults> {
   }
 
   try {
-    await connectToDatabase();
-    const regex = new RegExp(query.trim(), "i");
-
-    const [opportunities, companies, categories, blogPosts] = await Promise.all([
-      Opportunity.find({
-        status: "published",
-        $or: [
-          { title: regex },
-          { skills: { $elemMatch: { $regex: regex } } },
-          { location: regex },
-        ],
-      })
-        .populate("company", "name logo slug")
-        .populate("category", "name slug")
-        .limit(6)
-        .lean(),
-
-      Company.find({ name: regex }).limit(4).lean(),
-
-      Category.find({ name: regex }).limit(4).lean(),
-
-      BlogPost.find({
-        status: "published",
-        $or: [{ title: regex }, { category: regex }],
-      })
-        .limit(4)
-        .lean(),
-    ]);
+    const data = await fetchDjango<GlobalSearchResults>("/search/", {
+      params: { q: query.trim() },
+    });
 
     return {
-      opportunities: JSON.parse(JSON.stringify(opportunities)),
-      companies: JSON.parse(JSON.stringify(companies)),
-      categories: JSON.parse(JSON.stringify(categories)),
-      blogPosts: JSON.parse(JSON.stringify(blogPosts)),
+      opportunities: data.opportunities || [],
+      companies: data.companies || [],
+      categories: data.categories || [],
+      blogPosts: data.blogPosts || [],
     };
   } catch (error) {
     console.error("[searchAll Error]:", error);

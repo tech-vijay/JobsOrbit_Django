@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient } from "@/lib/auth/auth-client";
+import { loginAdminAction } from "@/actions/auth.actions";
 import { toast } from "sonner";
 import { loginSchema, LoginInput } from "@/validations/auth.schema";
 import { Button } from "@/components/ui/Button";
@@ -31,13 +31,10 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginInput) => {
     setLoading(true);
     try {
-      const res = await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-      });
+      const res = await loginAdminAction(data);
 
-      if (res?.error) {
-        toast.error(res.error.message || "Invalid email or password. Please try again.");
+      if (!res.success) {
+        toast.error(res.error || "Invalid email or password. Please try again.");
       } else {
         toast.success("Signed in successfully!");
         router.push(callbackUrl);
