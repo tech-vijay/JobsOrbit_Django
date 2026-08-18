@@ -4,6 +4,8 @@
 
 It features a high-performance **Next.js 16 (React 19, Tailwind CSS v4)** frontend and a robust **Django & Django REST Framework (DRF)** backend with built-in JWT authentication, OpenAPI/Swagger documentation, and SQLite/PostgreSQL database support.
 
+Live Link : jobs-orbit-khaki.vercel.app
+
 ---
 
 ## 🌟 Key Features
